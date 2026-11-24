@@ -1,0 +1,108 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+static class L {
+    internal static bool English;
+    internal static string SettingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"PoolDesk","language.txt");
+    internal static readonly Dictionary<string,string> Strings = new Dictionary<string,string> {
+        {"  ·  Показать слоты и ссылки","  ·  View slots and links"},
+        {" (FM/TB: набор модов не задан)"," (FM/TB: mods not specified)"},
+        {" Переключи стадию для повтора."," Switch stages to retry."},
+        {" карт"," maps"},
+        {" — карта не найдена\n"," — map not found\n"},
+        {"CS, AR, OD, HP, BPM и длительность появятся здесь.","CS, AR, OD, HP, BPM and drain time will appear here."},
+        {"ID скачанного файла не совпадает с картой.","The downloaded file has a different beatmap ID."},
+        {"Pool Desk уже открыт.","PoolDesk is already running."},
+        {"osu!Collector пока не определил следующие карты.\nПроверь ссылки или повтори загрузку пула позже.\n\n","osu!Collector has not resolved these maps yet.\nCheck the links or reload the pool later.\n\n"},
+        {"osu!Collector пока не определил эту карту. Установка этой стадии недоступна.","osu!Collector has not resolved this map. This stage cannot be installed."},
+        {"rosu-pp 4.0.1 · stable · остальные параметры — без модов","rosu-pp 4.0.1 · stable · other stats are unmodded"},
+        {"» сохранена. ","” saved. "},
+        {"Без модов: ","No mods: "},
+        {"Без слота","No slot"},
+        {"В архиве отсутствует нужная сложность.","The archive does not contain the required difficulty."},
+        {"В пуле пока нет карт.","This pool has no maps yet."},
+        {"В этой стадии нет карт.","This stage has no maps."},
+        {"ВРЕМЯ","DRAIN TIME"},
+        {"Введи название коллекции.","Enter a collection name."},
+        {"Версия .osu отличается от osu!Collector. Старрейт не подменён; обнови пул позже.","The .osu version differs from osu!Collector. No substitute rating is shown; reload the pool later."},
+        {"Вместо карты получен неверный файл.","The downloaded response is not a valid beatmap."},
+        {"Все карты","All maps"},
+        {"Вставь HTTPS-ссылку на osu!Collector.","Paste an HTTPS link to osu!Collector."},
+        {"Вставь ссылку на турнир или коллекцию и нажми «Открыть пул».","Paste a tournament or collection link and click “Open pool”."},
+        {"Выбери карту в таблице","Select a map in the table"},
+        {"Выбери папку osu!stable с файлом osu!.exe","Select the osu!stable folder containing osu!.exe"},
+        {"Выбери папку с osu!.exe.","Select a folder containing osu!.exe."},
+        {"Выбери стадию выше и проверь название коллекции.","Select a stage above and check the collection name."},
+        {"Выбери стадию. Нажми на карту, чтобы посмотреть параметры.","Select a stage. Click a map to view its details."},
+        {"Дождись завершения операции.","Please wait for the operation to finish."},
+        {"Другая версия в Songs: ","A different version exists in Songs: "},
+        {"Загрузка пула…","Loading pool…"},
+        {"Закрой osu!stable и повтори установку.","Close osu!stable and try installing again."},
+        {"Исполнитель / трек","Artist / track"},
+        {"Источник не передал ID карты — ссылка неизвестна.","The source did not provide a map ID; the link is unknown."},
+        {"Карта не найдена в osu!Collector","Map not found in osu!Collector"},
+        {"Карта не найдена","Map not found"},
+        {"Карты установлены. ","Maps installed. "},
+        {"Коллекция «","Collection “"},
+        {"Куда скачать все карты?","Where should all maps be downloaded?"},
+        {"Моды слота не распознаны; старрейт с модами неизвестен.","Unrecognized slot mods; the modded star rating is unknown."},
+        {"Набор ","Beatmapset "},
+        {"Название коллекции","Collection name"},
+        {"Не удалось определить карты: ","Unresolved maps: "},
+        {"Не удалось открыть браузер: ","Could not open the browser: "},
+        {"Не удалось рассчитать: ","Could not calculate: "},
+        {"Не удалось скачать набор.\n","Could not download the beatmapset.\n"},
+        {"Не удалось создать калькулятор.","Could not create the calculator."},
+        {"Неизвестные данные в конце collection.db.","Unexpected data at the end of collection.db."},
+        {"Неизвестные моды","Unknown mods"},
+        {"Неизвестный формат collection.db.","Unknown collection.db format."},
+        {"Некорректный результат расчёта.","The calculator returned an invalid result."},
+        {"Неопределённые карты","Unresolved maps"},
+        {"Нужна ссылка на турнир или коллекцию.","A tournament or collection link is required."},
+        {"Операция прервана. ","Operation interrupted. "},
+        {"Открой выбор песни в osu!stable. При необходимости нажми F5.","Open song selection in osu!stable. Press F5 if needed."},
+        {"Открыть пул","Open pool"},
+        {"Ошибка расчёта rosu-pp: ","rosu-pp calculation error: "},
+        {"Параметры и старрейт из osu!Collector · без модов","Stats and star rating from osu!Collector · no mods"},
+        {"Повреждён collection.db.","The collection.db file is corrupt."},
+        {"Получаю карты с osu!Collector…","Fetching maps from osu!Collector…"},
+        {"Рассчитываю по файлу карты…","Calculating from the beatmap file…"},
+        {"Расчёт звёзд: ","Star calculation: "},
+        {"Расчёт…","Calculating…"},
+        {"Сервер не ответил вовремя. Переключи стадию для повтора.","The server timed out. Switch stages to retry."},
+        {"Скачано наборов: ","Downloaded beatmapsets: "},
+        {"Слишком большой файл .osu.","The .osu file is too large."},
+        {"Слишком большой файл сложности.","The difficulty file is too large."},
+        {"Сложность","Difficulty"},
+        {"Слот","Slot"},
+        {"Создать коллекцию в osu!","Create a collection in osu!"},
+        {"Ссылка на osu!Collector","osu!Collector link"},
+        {"Ссылка недоступна: источник не передал ID карты.","Link unavailable: the source did not provide a map ID."},
+        {"Стадия турнира","Tournament stage"},
+        {"Твой следующий маппул","Your next mappool"},
+        {"Устанавливаю карты…","Installing maps…"},
+        {"Установить","Install"},
+        {"Установка не начата: в выбранном пуле есть неопределённые карты.","Installation not started: this pool contains unresolved maps."},
+        {"автор неизвестен","unknown mapper"},
+        {"★ с модами","★ with mods"},
+        {"Скачать все карты","Download all maps"},
+        {"Добавить в osu!","Add to osu!"},
+        {"НЕОФИЦИАЛЬНЫЙ · OSU!STABLE","UNOFFICIAL · OSU!STABLE"},
+        {"Свернуть","Minimize"},
+        {"Развернуть / восстановить","Maximize / restore"},
+        {"Закрыть","Close"},
+        {"Хорошо","OK"},
+        {"Не удалось сохранить язык. Выбор действует до закрытия программы.","Could not save the language. Your choice applies to this session."},
+        {" (исходное значение)"," (original value)"}
+    };
+    internal static string T(string ru) { string en; return English && Strings.TryGetValue(ru,out en) ? en : ru; }
+    internal static string Translate(string text) {
+        if(String.IsNullOrEmpty(text)) return text;
+        var pairs = Strings.Select(p=> new KeyValuePair<string,string>(English ? p.Key : p.Value,English ? p.Value : p.Key)).OrderByDescending(p=>p.Key.Length);
+        foreach(var pair in pairs) text=text.Replace(pair.Key,pair.Value);
+        return text;
+    }
+    internal static void Load() { try { English = File.Exists(SettingsFile) && File.ReadAllText(SettingsFile).Trim()=="en"; } catch(IOException) { } catch(UnauthorizedAccessException) { } }
+    internal static bool Save() { try { Directory.CreateDirectory(Path.GetDirectoryName(SettingsFile)); File.WriteAllText(SettingsFile,English ? "en" : "ru"); return true; } catch(IOException) { return false; } catch(UnauthorizedAccessException) { return false; } }
+}
