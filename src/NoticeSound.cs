@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Media;
 class NoticeSound {
     static SoundPlayer player;
     static MemoryStream audio;
     internal static void Play(bool error) {
+        if(!AppSettings.Current.Sounds) return;
         try {
             if(player!=null) { player.Stop(); player.Dispose(); audio.Dispose(); }
             int rate=22050, count=(int)(rate*0.65);

@@ -1,5 +1,11 @@
-*.exe
-Tests21.exe.config
+**/bin/
+**/obj/
+artifacts/
+.vs/
+*.user
+*.suo
+*.pfx
+*.p12
+*.log
 .test-cache/
-*.osz
-*.osu
+test-results/

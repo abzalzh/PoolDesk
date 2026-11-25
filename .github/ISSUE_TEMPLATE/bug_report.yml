@@ -1,0 +1,24 @@
+name: Bug / Ошибка
+description: Report a reproducible problem / Сообщить об ошибке
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps / Шаги
+      description: What did you do, what happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: pool
+    attributes:
+      label: Pool URL and stage / Ссылка и стадия
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics / Диагностика
+      description: Menu ☰ → Copy diagnostics. Review any attached logs and remove personal paths.
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshot or log / Скриншот или лог
+      description: Do not attach collection.db, music or private data.

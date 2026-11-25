@@ -11,7 +11,7 @@ class DarkForm : Form {
     [DllImport("user32.dll")] static extern bool ReleaseCapture();
     [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr hwnd,int message,IntPtr wParam,IntPtr lParam);
     public DarkForm() {
-        FormBorderStyle = FormBorderStyle.None; Padding = new Padding(6); BackColor = Color.FromArgb(16,19,27);
+        FormBorderStyle = FormBorderStyle.None; Padding = new Padding(4); BackColor = Color.FromArgb(16,19,27);
         DoubleBuffered = true;
         var bar = new Panel { Height = 36, Dock = DockStyle.Top, BackColor = Color.FromArgb(20,24,34) };
         caption.ForeColor = Color.FromArgb(159,172,196); caption.Font = new Font("Segoe UI",9);
@@ -38,7 +38,15 @@ class DarkForm : Form {
         ReleaseCapture(); SendMessage(Handle,0xA1,(IntPtr)2,IntPtr.Zero);
     }
     protected override CreateParams CreateParams {
-        get { var cp=base.CreateParams; cp.Style |= 0x40000 | 0x80000 | 0x20000 | 0x10000; return cp; }
+        get { var cp=base.CreateParams; cp.Style = (cp.Style & ~0x00C40000) | 0x80000 | 0x20000 | 0x10000; return cp; }
+    }
+    [DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr hwnd,int attribute,ref int value,int size);
+    protected override void OnHandleCreated(EventArgs e) {
+        base.OnHandleCreated(e);
+        int dark=1,round=2,border=0x00534037;
+        DwmSetWindowAttribute(Handle,20,ref dark,4);
+        DwmSetWindowAttribute(Handle,33,ref round,4);
+        DwmSetWindowAttribute(Handle,34,ref border,4);
     }
     internal static int ResizeHit(Point p,Size size,int grip) {
         bool left=p.X<grip, right=p.X>=size.Width-grip, top=p.Y<grip, bottom=p.Y>=size.Height-grip;
@@ -47,7 +55,9 @@ class DarkForm : Form {
         return left ? 10 : right ? 11 : 1;
     }
     protected override void WndProc(ref Message m) {
-        if(m.Msg==0x83 && m.WParam!=IntPtr.Zero) { m.Result=IntPtr.Zero; return; }
+        if(m.Msg==0x83) { m.Result=IntPtr.Zero; return; }
+        if(m.Msg==0x85) { m.Result=IntPtr.Zero; return; }
+        if(m.Msg==0x86) { m.Result=(IntPtr)1; return; }
         base.WndProc(ref m);
         if(m.Msg==0x84 && WindowState==FormWindowState.Normal) {
             long xy=m.LParam.ToInt64(); var point=PointToClient(new Point((short)(xy&0xffff),(short)((xy>>16)&0xffff)));

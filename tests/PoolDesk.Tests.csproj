@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><EnableDefaultCompileItems>false</EnableDefaultCompileItems><StartupObject>TestRunner</StartupObject><AssemblyName>PoolDesk.Tests</AssemblyName><ApplicationIcon>../assets/PoolDesk.ico</ApplicationIcon></PropertyGroup>
+  <ItemGroup><Compile Include="../src/**/*.cs"/><Compile Include="TestRunner.cs"/><Content Include="../third_party/rosu_pp_ffi.dll" Link="rosu_pp_ffi.dll" CopyToOutputDirectory="PreserveNewest"/><Content Include="fixtures/**" CopyToOutputDirectory="PreserveNewest"/></ItemGroup>
+</Project>
