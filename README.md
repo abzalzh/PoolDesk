@@ -76,6 +76,10 @@ GitHub Actions собирает и проверяет проект. Тег `v1.0
 
 Релиз не подписан Authenticode: сертификат издателя не предоставлен. SHA-256 опубликованы отдельно для проверки целостности; они не заменяют подпись издателя. Не отключай защиту Windows ради запуска.
 
+## Связь с разработчиком:
+**Discord:** @scamming.org
+**Telegram:** @scam0scam0scam0scam0scam0scam0
+
 ---
 
 # English
@@ -101,6 +105,10 @@ Build with .NET 8 SDK using `test.ps1` and `build.ps1`; add `-Installer` with In
 **Unofficial and independent:** not affiliated with, endorsed by or sponsored by ppy, peppy, osu!, osu!Collector, their authors or any of their products. Names identify compatibility only. This project exists to simplify map and collection installation.
 
 **I openly acknowledge that 100% of PoolDesk's own code and text was generated with AI: this is a vibe-coded project.** This does not claim authorship of third-party libraries. Tests do not guarantee bug-free operation; independent review and bug reports are welcome.
+
+## Contact with developer:
+**Discord:** @scamming.org
+**Telegram:** @scam0scam0scam0scam0scam0scam0
 
 Own code is MIT licensed; third-party licenses and notices are retained. Maps, music, images and trademarks are not covered by this app's license. Respect applicable permissions and service terms; PoolDesk does not bypass access controls or paid features and cannot guarantee map availability.
 
