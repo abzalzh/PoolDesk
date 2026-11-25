@@ -48,7 +48,7 @@ class Window : DarkForm {
         return new Label { Text = text, ForeColor = color, AutoSize = true, Font = new Font("Segoe UI Variable Text",size), Margin = Padding.Empty };
     }
     public Window() {
-        Text = "PoolDesk 1.1 · osu!stable"; AutoScaleDimensions = new SizeF(96,96); AutoScaleMode = AutoScaleMode.Dpi;
+        Text = "PoolDesk 1.1.1.0 · osu!stable"; AutoScaleDimensions = new SizeF(96,96); AutoScaleMode = AutoScaleMode.Dpi;
         MinimumSize = new Size(780,640); Size = new Size(1120,880);
         StartPosition = FormStartPosition.CenterScreen; Font = new Font("Segoe UI Variable Text",10); BackColor = Bg; ForeColor = Ink;
         DoubleBuffered = true;

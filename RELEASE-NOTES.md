@@ -1,5 +1,5 @@
-# PoolDesk 1.1
+# PoolDesk 1.1.1.0
 
-Недавние пулы, установка одного слота в отдельную коллекцию, журнал сбоев и обновлённый интерфейс.
+Новая иконка для ярлыков. Видео карт отключено по умолчанию и включается в настройках.
 
-Recent pools, single-slot collection installation, crash logs and updated UI. Windows x64, osu!stable.
+Updated shortcut icon. Beatmap videos are optional and disabled by default.

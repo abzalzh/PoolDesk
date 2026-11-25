@@ -46,7 +46,7 @@ class InstallEngine {
                                 lock(receipt) { receipt.Skipped++; receipt.Hashes.AddRange(hashes); receipt.Save(); }
                                 report(group.Key,0,0,UiText.Pick("Уже установлено: ","Already installed: ")+group.Key); return;
                             }
-                            string signature=string.Join(";",missing.OrderBy(m=>m.Id).Select(m=>m.Id+":"+m.Checksum));
+                            string signature=(settings.IncludeVideo?"video:":"novideo:")+string.Join(";",missing.OrderBy(m=>m.Id).Select(m=>m.Id+":"+m.Checksum));
                             string suffix=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(signature))).Substring(0,12);
                             string target=Path.Combine(destination,group.Key+"-"+suffix+".osz");
                             var found=await downloads.Fetch(target,group.Key,missing,settings,control,token,(bytes,total,mirror)=>report(group.Key,bytes,total,mirror+" · "+group.First().Song),log);

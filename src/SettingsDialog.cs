@@ -44,13 +44,14 @@ class SettingsDialog : DarkForm {
             int i=Choice.Pick(this,UiText.Pick("Тема","Theme"),labels,chosenTheme=="Dark"?0:1);
             if(i>=0) { chosenTheme=i==0?"Dark":"Light"; theme.Text=labels[i]; }
         };
+        var video=new CheckBox{Text=UiText.Pick("Скачивать карты с видео","Download maps with video"),Checked=settings.IncludeVideo,AutoSize=true}; add("",video);
         var sound=new CheckBox{Text=UiText.Pick("Звуки завершения и ошибок","Completion and error sounds"),Checked=settings.Sounds,AutoSize=true}; add("",sound);
         var save=new Button{Text=UiText.Pick("Сохранить","Save"),Height=40,BackColor=Window.Pink,ForeColor=Window.Bg,FlatStyle=FlatStyle.Flat}; add("",save);
         save.Click+=delegate {
             try {
                 if(path.Text.Trim().Length>0&&!OsuLocator.Valid(path.Text.Trim())) throw new IOException(UiText.Pick("В выбранной папке нет osu!.exe.","The selected folder does not contain osu!.exe."));
                 settings.OsuFolder=path.Text.Trim(); settings.ParallelDownloads=(int)threads.Value; settings.Attempts=(int)attempts.Value;
-                settings.BackupCount=(int)backups.Value; settings.CacheLimitGB=(int)cache.Value; settings.Sounds=sound.Checked; settings.Theme=chosenTheme;
+                settings.BackupCount=(int)backups.Value; settings.CacheLimitGB=(int)cache.Value; settings.IncludeVideo=video.Checked; settings.Sounds=sound.Checked; settings.Theme=chosenTheme;
                 settings.Mirrors=mirrors.Items.Cast<string>().ToList(); settings.Save(); DialogResult=DialogResult.OK; Close();
             } catch(Exception ex) { DarkForm.ShowMessage(this,ex.Message); }
         };
@@ -85,7 +86,7 @@ class HistoryDialog : DarkForm {
 static class SupportTools {
     internal static void OpenLogs() { Directory.CreateDirectory(AppPaths.Logs); Process.Start(new ProcessStartInfo(AppPaths.Logs){UseShellExecute=true}); }
     internal static string Diagnostics() {
-        return "PoolDesk 1.1.0\nOS: "+Environment.OSVersion+"\n.NET: "+Environment.Version+"\nArchitecture: "+System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture+
+        return "PoolDesk 1.1.1.0\nOS: "+Environment.OSVersion+"\n.NET: "+Environment.Version+"\nArchitecture: "+System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture+
             "\nLanguage: "+(L.English?"en":"ru")+"\nThreads: "+AppSettings.Current.ParallelDownloads+"\nAttempts: "+AppSettings.Current.Attempts+
             "\nMirrors: "+string.Join(", ",AppSettings.Current.Mirrors)+"\nCache MiB: "+(AppPaths.CacheSize()/1048576.0).ToString("0.0")+"\nosu folder valid: "+OsuLocator.Valid(AppSettings.Current.OsuFolder);
     }
@@ -96,7 +97,7 @@ static class SupportTools {
                 foreach(var release in doc.RootElement.EnumerateArray()) {
                     if(release.GetProperty("draft").GetBoolean()||release.GetProperty("prerelease").GetBoolean()) continue;
                     string tag=release.GetProperty("tag_name").GetString(); Version version;
-                    if(!tag.StartsWith("v1.",StringComparison.OrdinalIgnoreCase)||!Version.TryParse(tag.TrimStart('v','V'),out version)||version<=new Version(1,1,0)) continue;
+                    if(!tag.StartsWith("v1.",StringComparison.OrdinalIgnoreCase)||!Version.TryParse(tag.TrimStart('v','V'),out version)||version<=new Version(1,1,1,0)) continue;
                     return "https://github.com/abzalzh/PoolDesk/releases/tag/"+Uri.EscapeDataString(tag);
                 }
             }

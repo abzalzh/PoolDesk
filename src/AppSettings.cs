@@ -49,6 +49,7 @@ class AppSettings {
     public int BackupCount=10;
     public int CacheLimitGB=5;
     public bool Sounds=true;
+    public bool IncludeVideo=false;
     public string Theme="Dark";
     public List<string> Mirrors=new List<string>{"Nerinyan","Catboy","Sayobot"};
     internal void Validate() {

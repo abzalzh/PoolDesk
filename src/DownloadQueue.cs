@@ -42,8 +42,12 @@ class DownloadQueue {
             for(int attempt=0;attempt<settings.Attempts;attempt++) {
                 await control.Wait(token);
                 try {
-                    await Download(endpoint+set,destination,control,token,(n,total)=>progress(n,total,mirror));
+                    string url=endpoint+set;
+                    if(!settings.IncludeVideo && mirror=="Sayobot") url=url.Replace("/full/","/novideo/");
+                    if(!settings.IncludeVideo && mirror=="Nerinyan") url+="?nv=1";
+                    await Download(url,destination,control,token,(n,total)=>progress(n,total,mirror));
                     var found=Validate(destination+".part",maps);
+                    if(!settings.IncludeVideo) StripVideo(destination+".part");
                     File.Move(destination+".part",destination,true);
                     if(File.Exists(destination+".part.json")) File.Delete(destination+".part.json");
                     return found;
@@ -57,6 +61,27 @@ class DownloadQueue {
             }
         }
         throw new IOException("All mirrors failed for beatmapset "+set+": "+last);
+    }
+    internal static void StripVideo(string path) {
+        var extensions=new HashSet<string>(StringComparer.OrdinalIgnoreCase){".avi",".mp4",".m4v",".flv",".wmv",".mkv",".mov",".webm",".mpg",".mpeg",".ogv",".3gp"};
+        string temp=path+".filtered";
+        try {
+            using(var source=System.IO.Compression.ZipFile.OpenRead(path)) {
+                if(!source.Entries.Any(e=>extensions.Contains(Path.GetExtension(e.Name)))) return;
+                using var file=File.Create(temp);
+                using var output=new System.IO.Compression.ZipArchive(file,System.IO.Compression.ZipArchiveMode.Create);
+                long expanded=0;
+                foreach(var entry in source.Entries) {
+                    if(extensions.Contains(Path.GetExtension(entry.Name))) continue;
+                    expanded=checked(expanded+entry.Length);
+                    if(expanded>2L*1024*1024*1024) throw new InvalidDataException("Expanded archive exceeds 2 GiB.");
+                    using var input=entry.Open();
+                    using var dest=output.CreateEntry(entry.FullName,System.IO.Compression.CompressionLevel.Fastest).Open();
+                    input.CopyTo(dest);
+                }
+            }
+            File.Move(temp,path,true);
+        } finally { if(File.Exists(temp)) File.Delete(temp); }
     }
     static void DeletePartial(string destination) { foreach(string suffix in new[]{".part",".part.json"}) if(File.Exists(destination+suffix)) File.Delete(destination+suffix); }
     internal async Task Download(string url,string destination,DownloadControl control,CancellationToken token,Action<long,long> progress) {

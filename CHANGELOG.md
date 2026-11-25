@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1.0
+
+- Versioned shortcut icon and optional beatmap video downloads (off by default).
+
 ## 1.1.0
 
 - Recent pools, single-slot installation, crash logs and redesigned settings menu.

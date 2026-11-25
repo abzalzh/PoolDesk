@@ -84,9 +84,15 @@ class TestRunner {
    Test("settings survives focus loss and reopening",()=> {
     using var other=new Form {ShowInTaskbar=false,Opacity=0}; other.Show();
     for(int i=0;i<3;i++) { using var dialog=new SettingsDialog {Opacity=0,ShowInTaskbar=false}; dialog.Show(); Application.DoEvents();
-      other.Activate(); Application.DoEvents(); dialog.Activate(); Application.DoEvents(); Check(dialog.Visible&&!dialog.IsDisposed,"settings closed on focus change"); dialog.Close(); }
+      other.Activate(); Application.DoEvents(); dialog.Activate(); Application.DoEvents(); Check(dialog.Visible&&!dialog.IsDisposed,"settings closed on focus change"); if(i==0) { using var bitmap=new Bitmap(dialog.Width,dialog.Height); dialog.DrawToBitmap(bitmap,new Rectangle(Point.Empty,dialog.Size)); bitmap.Save(Path.Combine(root,"settings.png")); } dialog.Close(); }
    });
    Test("crash report is written separately",()=> { CrashLog.Write(new IOException("test crash report")); Check(Directory.GetFiles(CrashLog.Folder).Any(f=>File.ReadAllText(f).Contains("test crash report")),"missing crash log"); });
+   Test("video filtering preserves chart bytes and audio",()=> {
+    string path=Path.Combine(root,"video.osz"); File.WriteAllBytes(path,Zip(7));
+    using(var zip=ZipFile.Open(path,ZipArchiveMode.Update)) { zip.CreateEntry("BG/clip.MP4"); zip.CreateEntry("music.mp3"); }
+    DownloadQueue.StripVideo(path); DownloadQueue.Validate(path,new[]{Chart(7)});
+    using var result=ZipFile.OpenRead(path); Check(result.GetEntry("BG/clip.MP4")==null&&result.GetEntry("music.mp3")!=null,"video filter");
+   });
    Console.WriteLine("PASS TOTAL: "+passed); return 0;
   } catch(Exception ex) { Console.Error.WriteLine(ex); return 1; }
  }
