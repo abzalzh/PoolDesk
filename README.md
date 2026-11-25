@@ -1,4 +1,4 @@
-﻿# PoolDesk 1.0
+# PoolDesk 1.1
 
 **RU** · [English below](#english)
 
@@ -8,7 +8,7 @@
 
 ## Скачать и запустить
 
-Открой [Releases](https://github.com/abzalzh/PoolDesk/releases) и скачай **PoolDesk-1.0.0-Setup.exe** или **PoolDesk-1.0.0-win-x64.zip**. ZIP нужно распаковать целиком, затем запустить `PoolDesk.exe`. Исходники предназначены для разработки, не для обычного запуска.
+Открой [Releases](https://github.com/abzalzh/PoolDesk/releases) и скачай **PoolDesk-1.1.0-Setup.exe** или **PoolDesk-1.1.0-win-x64.zip**. ZIP нужно распаковать целиком, затем запустить `PoolDesk.exe`. Исходники предназначены для разработки, не для обычного запуска.
 
 Windows 10/11 x64. .NET 8 включён в EXE — отдельно устанавливать .NET Framework не нужно. Для нативного расчёта звёзд нужен Microsoft Visual C++ Runtime x64. Установщик предлагает скачать его с Microsoft, проверяет цифровую подпись и запускает установку; запрос администратора относится к Microsoft Runtime. Для portable при необходимости используй [официальный установщик Microsoft](https://aka.ms/vc14/vc_redist.x64.exe).
 
@@ -23,6 +23,8 @@ Windows 10/11 x64. .NET 8 включён в EXE — отдельно устан�
 [Анимация интерфейса](docs/screenshots/preview.gif) · [Светлая тема](docs/screenshots/light.png)
 
 ## Возможности
+
+Кнопка **Недавние** открывает список последних 100 открытых пулов. **Установить слот** сохраняет карты выбранного слота текущей стадии в отдельную коллекцию. Журнал сбоев доступен через меню.
 
 - Русский / English, тёмная и светлая темы, собственная тёмная рамка без системного белого заголовка, масштабирование под DPI.
 - Звёзды **с модами слота** в таблице; без модов и с модами рядом в карточке. Нажми строку для CS, AR, OD, HP, BPM и длительности.
@@ -64,7 +66,7 @@ Windows 10/11 x64. .NET 8 включён в EXE — отдельно устан�
 
 Тесты не обращаются к сети и не изменяют установленную игру: проверяют коллекции, ошибки/конфликты записи, бэкапы, скачивание через поддельный HTTP, MD5, докачку, параллельность, паузу, историю, архивы и UI. Фикстура API содержит метаданные; тестовые `.osu` генерируются самим тестом, музыка не включена. Настоящий API и доступность зеркал могут меняться независимо от этих тестов.
 
-GitHub Actions собирает и проверяет проект. Тег `v1.0.0` запускает подготовку релизных файлов; процесс публикации описан в `PUBLISH-RU.md`. Скриншоты демонстрационные: названия и численные значения на них созданы для проверки интерфейса.
+GitHub Actions собирает и проверяет проект. Тег `v1.1.0` запускает подготовку релизных файлов. Скриншоты демонстрационные: названия и численные значения на них созданы для проверки интерфейса.
 
 ## Статус, авторство и лицензии
 
@@ -84,13 +86,15 @@ GitHub Actions собирает и проверяет проект. Тег `v1.0
 
 # English
 
-**PoolDesk 1.0** is a small Windows app for downloading osu!Collector pools and installing their maps and collections into **osu!stable**.
+**PoolDesk 1.1** is a small Windows app for downloading osu!Collector pools and installing their maps and collections into **osu!stable**.
 
 ![PoolDesk, English interface](docs/screenshots/en.png)
 
 Download the setup EXE or portable ZIP from [Releases](https://github.com/abzalzh/PoolDesk/releases). Extract the entire ZIP before starting `PoolDesk.exe`. Windows 10/11 x64 is required. .NET 8 is included. Native star calculation requires Microsoft Visual C++ Runtime x64; setup offers a download from Microsoft, verifies its signature and launches its installer. The portable version may need the [Microsoft runtime](https://aka.ms/vc14/vc_redist.x64.exe).
 
 Close osu!, paste an osu!Collector tournament/collection link, open the pool, select a stage, choose **Add to osu!**, review the collection name and install. Open song selection in osu! afterward and press F5 if necessary. The game folder is detected and remembered. osu!lazer is not supported.
+
+Recent pools remembers up to 100 opened links. Install slot creates a separate collection for one slot of the selected stage. Crash reports are available from the menu.
 
 Features include Russian/English UI, dark/light themes, custom dark window chrome, modded stars in the table and base/modded stars side by side, detailed map stats, existing-map detection, exact MD5 checks, parallel downloads, mirror fallback, retries, pause/resume, per-operation logs, sounds, install history and selective rollback. FM/TB use an explicitly marked NM calculation because specific free mods are unknown; other displayed stats are unmodded. Calculation uses rosu-pp 4.0.1 in stable mode and may differ from other osu! algorithm versions.
 

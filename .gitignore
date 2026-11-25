@@ -9,3 +9,5 @@ artifacts/
 *.log
 .test-cache/
 test-results/
+
+/PUBLISH-RU.md

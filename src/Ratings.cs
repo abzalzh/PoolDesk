@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -12,7 +12,7 @@ static class Ratings {
     static readonly HttpClient client = new HttpClient { Timeout = TimeSpan.FromSeconds(25) };
     static readonly SemaphoreSlim limit = new SemaphoreSlim(2);
     internal static string CacheDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"PoolDesk","DifficultyMaps");
-    static Ratings() { client.DefaultRequestHeaders.UserAgent.ParseAdd("PoolDesk/1.0"); }
+    static Ratings() { client.DefaultRequestHeaders.UserAgent.ParseAdd("PoolDesk/1.1"); }
     internal static string ModsForSlot(string slot) {
         string code = Regex.Replace((slot ?? "").ToUpperInvariant().Trim(),@"\d+$","").Replace("+","").Replace(" ","");
         if(code == "" || code == "NM" || code == "FM" || code == "TB") return "NM";

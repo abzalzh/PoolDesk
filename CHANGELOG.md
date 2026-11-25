@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0
+
+- Recent pools, single-slot installation, crash logs and redesigned settings menu.
+- Updated icon, window controls, link placeholder and button contrast.
+
 ## 1.0.0 — 2026-11-25
 
 First release in the public 1.x version line. Earlier 2.x packages were development prototypes.

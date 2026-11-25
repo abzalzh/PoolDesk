@@ -66,7 +66,7 @@ class TestRunner {
    Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles();
    Test("borderless window / RU EN / light theme / render",()=> {
     using(var w=new Window()) { w.StartPosition=FormStartPosition.Manual; w.Location=new Point(-16000,-16000); w.Show(); Application.DoEvents(); Check(w.FormBorderStyle==FormBorderStyle.None,"frame");
-     var pool=new Pool{Name="PoolDesk 1.0 · Demo"}; var stage=new Stage{Name="Qualifiers",Maps=Enumerable.Range(1,12).Select(i=>new Chart{Id=i,Set=i,Slot=(i<5?"NM":i<9?"HD":"DT")+i,Song="PoolDesk — Interface preview",Difficulty="Expert",Creator="PoolDesk",Mode="osu",Status="Demo",CS=4,AR=9,OD=8,HP=5,BPM=180,Length=125,BaseStars=4.75,ModStars=i<9?4.75:6.80}).ToList()}; pool.Stages.Add(stage);
+     var pool=new Pool{Name="Preview Pool"}; var stage=new Stage{Name="Qualifiers",Maps=Enumerable.Range(1,12).Select(i=>new Chart{Id=i,Set=i,Slot=(i<5?"NM":i<9?"HD":"DT")+i,Song="PoolDesk — Interface preview",Difficulty="Expert",Creator="PoolDesk",Mode="osu",Status="Demo",CS=4,AR=9,OD=8,HP=5,BPM=180,Length=125,BaseStars=4.75,ModStars=i<9?4.75:6.80}).ToList()}; pool.Stages.Add(stage);
      typeof(Window).GetField("pool",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(w,pool);
      var stages=(ComboBox)typeof(Window).GetField("stages",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(w); stages.Items.Add(stage); stages.SelectedIndex=0;
      ((Label)typeof(Window).GetField("title",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(w)).Text=pool.Name;
@@ -77,7 +77,18 @@ class TestRunner {
      w.Close(); }
    });
    Test("resize hit corners",()=> { Check(DarkForm.ResizeHit(new Point(0,0),new Size(100,100),6)==13&&DarkForm.ResizeHit(new Point(99,99),new Size(100,100),6)==17,"resize"); });
+   Test("recent pools persist without installing and deduplicate",()=> {
+    var a=new Pool{Name="A",Source="https://osucollector.com/tournaments/1"}; RecentPool.Record(a); RecentPool.Record(a);
+    Check(RecentPool.Read().Count==1&&RecentPool.Read()[0].Url==a.Source,"recent history");
+   });
+   Test("settings survives focus loss and reopening",()=> {
+    using var other=new Form {ShowInTaskbar=false,Opacity=0}; other.Show();
+    for(int i=0;i<3;i++) { using var dialog=new SettingsDialog {Opacity=0,ShowInTaskbar=false}; dialog.Show(); Application.DoEvents();
+      other.Activate(); Application.DoEvents(); dialog.Activate(); Application.DoEvents(); Check(dialog.Visible&&!dialog.IsDisposed,"settings closed on focus change"); dialog.Close(); }
+   });
+   Test("crash report is written separately",()=> { CrashLog.Write(new IOException("test crash report")); Check(Directory.GetFiles(CrashLog.Folder).Any(f=>File.ReadAllText(f).Contains("test crash report")),"missing crash log"); });
    Console.WriteLine("PASS TOTAL: "+passed); return 0;
   } catch(Exception ex) { Console.Error.WriteLine(ex); return 1; }
  }
 }
+

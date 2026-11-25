@@ -24,7 +24,7 @@ class DownloadQueue {
     readonly HttpClient client;
     internal DownloadQueue(HttpClient client=null) {
         this.client=client??new HttpClient { Timeout=Timeout.InfiniteTimeSpan };
-        if(!this.client.DefaultRequestHeaders.UserAgent.Any()) this.client.DefaultRequestHeaders.UserAgent.ParseAdd("PoolDesk/1.0");
+        if(!this.client.DefaultRequestHeaders.UserAgent.Any()) this.client.DefaultRequestHeaders.UserAgent.ParseAdd("PoolDesk/1.1");
     }
     internal static Dictionary<int,string> Validate(string file,IEnumerable<Chart> requested) {
         var maps=requested.ToList(); var found=Pool.Inspect(file,maps.Select(m=>m.Id));

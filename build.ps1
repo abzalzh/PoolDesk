@@ -1,4 +1,4 @@
-﻿param([switch]$Installer, [string]$Compiler, [string]$CertificateThumbprint)
+param([switch]$Installer, [string]$Compiler, [string]$CertificateThumbprint)
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
 function Sign-ReleaseFile([string]$Path) {
@@ -21,13 +21,13 @@ Copy-Item third_party\licenses\* .\artifacts\portable\licenses -Recurse -Force
 Copy-Item third_party\LICENSE-rosu-pp-ffi.txt .\artifacts\portable\licenses -Force
 Copy-Item third_party\dotnet\* .\artifacts\portable\licenses\dotnet -Recurse -Force
 Copy-Item docs .\artifacts\portable\docs -Recurse -Force
-Compress-Archive -Path .\artifacts\portable\* -DestinationPath .\artifacts\PoolDesk-1.0.0-win-x64.zip -Force
+Compress-Archive -Path .\artifacts\portable\* -DestinationPath .\artifacts\PoolDesk-1.1.0-win-x64.zip -Force
 if ($Installer) {
     if (-not $Compiler) { $Compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe' }
     if (-not (Test-Path -LiteralPath $Compiler)) { throw 'Install Inno Setup 6, or pass -Compiler with the full path to ISCC.exe' }
     & $Compiler .\installer\PoolDesk.iss
     if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
-    Sign-ReleaseFile .\artifacts\PoolDesk-1.0.0-Setup.exe
+    Sign-ReleaseFile .\artifacts\PoolDesk-1.1.0-Setup.exe
 }
 Get-ChildItem .\artifacts -File | Where-Object Extension -In '.zip','.exe' | ForEach-Object {
     '{0}  {1}' -f (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name

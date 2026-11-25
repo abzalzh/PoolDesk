@@ -1,4 +1,4 @@
-#define AppVersion "1.0.0"
+#define AppVersion "1.1.0"
 [Setup]
 AppId={{424E574B-29F2-467F-B3F5-7D07C6193CC3}
 AppName=PoolDesk
@@ -12,7 +12,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir=..\artifacts
-OutputBaseFilename=PoolDesk-1.0.0-Setup
+OutputBaseFilename=PoolDesk-1.1.0-Setup
 SetupIconFile=..\assets\PoolDesk.ico
 UninstallDisplayIcon={app}\PoolDesk.exe
 Compression=lzma2

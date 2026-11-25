@@ -46,7 +46,7 @@ class Pool {
     public bool Tournament;
     public List<Stage> Stages = new List<Stage>();
     static HttpClient http = new HttpClient { Timeout = TimeSpan.FromMinutes(4) };
-    static Pool() { http.DefaultRequestHeaders.UserAgent.ParseAdd("PoolDesk/1.0"); }
+    static Pool() { http.DefaultRequestHeaders.UserAgent.ParseAdd("PoolDesk/1.1"); }
     static async Task<Dictionary<string,object>> Read(string url) {
         string json = await http.GetStringAsync(url);
         using(var document=JsonDocument.Parse(json)) return (Dictionary<string,object>)JsonValue(document.RootElement);

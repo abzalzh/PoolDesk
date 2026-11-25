@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 class Native {
     const string Lib = "rosu_pp_ffi.dll";

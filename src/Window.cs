@@ -24,6 +24,7 @@ class Window : DarkForm {
     readonly CheckBox create = new CheckBox();
     readonly FlowLayoutPanel options = new FlowLayoutPanel(), stats = new FlowLayoutPanel();
     readonly Label basis = new Label();
+    readonly Button recent=ButtonOf("",false), slot=ButtonOf("",false), stagePicker=ButtonOf("",false);
     readonly Button languageButton = new Button();
     readonly Label subtitle;
     Pool pool;
@@ -34,7 +35,7 @@ class Window : DarkForm {
 
     CancellationTokenSource ratingCancel;
     static Button ButtonOf(string label,bool accent) {
-        var b = new Button { Text = label, AutoSize = true, MinimumSize = new Size(110,40), FlatStyle = FlatStyle.Flat,
+        var b = new ReadableButton { Text = label, AutoSize = true, MinimumSize = new Size(110,40), FlatStyle = FlatStyle.Flat,
             Padding = new Padding(14,6,14,6), Margin = new Padding(0,0,10,0), BackColor = accent ? Pink : Surface,
             ForeColor = accent ? Bg : Ink, Cursor = Cursors.Hand, UseVisualStyleBackColor = false };
         b.FlatAppearance.BorderSize = accent ? 0 : 1; b.FlatAppearance.BorderColor = Line;
@@ -44,12 +45,12 @@ class Window : DarkForm {
     FlowLayoutPanel Row() { return new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Margin = Padding.Empty }; }
     void StyleInput(TextBox t) { t.BackColor = Surface; t.ForeColor = Ink; t.BorderStyle = BorderStyle.FixedSingle; t.Margin = new Padding(0,8,12,8); }
     static Label LabelOf(string text, Color color, float size) {
-        return new Label { Text = text, ForeColor = color, AutoSize = true, Font = new Font("Segoe UI",size), Margin = Padding.Empty };
+        return new Label { Text = text, ForeColor = color, AutoSize = true, Font = new Font("Segoe UI Variable Text",size), Margin = Padding.Empty };
     }
     public Window() {
-        Text = "PoolDesk 1.0 · osu!stable"; AutoScaleDimensions = new SizeF(96,96); AutoScaleMode = AutoScaleMode.Dpi;
+        Text = "PoolDesk 1.1 · osu!stable"; AutoScaleDimensions = new SizeF(96,96); AutoScaleMode = AutoScaleMode.Dpi;
         MinimumSize = new Size(780,640); Size = new Size(1120,880);
-        StartPosition = FormStartPosition.CenterScreen; Font = new Font("Segoe UI",10); BackColor = Bg; ForeColor = Ink;
+        StartPosition = FormStartPosition.CenterScreen; Font = new Font("Segoe UI Variable Text",10); BackColor = Bg; ForeColor = Ink;
         DoubleBuffered = true;
         Shown += delegate {
             var area=Screen.FromControl(this).WorkingArea;
@@ -67,7 +68,15 @@ class Window : DarkForm {
         var source = new TableLayoutPanel { ColumnCount = 2, AutoSize = true, Dock = DockStyle.Fill, Margin = Padding.Empty };
         source.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); source.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         StyleInput(link); link.Dock = DockStyle.Fill; link.AccessibleName = L.T("Ссылка на osu!Collector");
-        link.Text = "https://osucollector.com/tournaments/73/6-Digit-World-Cup";
+        link.PlaceholderText = "https://osucollector.com/tournaments/73/6-Digit-World-Cup";
+        source.ColumnCount=3; source.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        source.Controls.Add(recent,2,0);
+        recent.Click+=delegate {
+            var entries=RecentPool.Read();
+            if(entries.Count==0) { DarkForm.ShowMessage(this,UiText.Pick("Здесь появятся открытые пулы.","Opened pools will appear here.")); return; }
+            int i=Choice.Pick(this,recent.Text,entries.Select(x=>x.ToString()).ToArray());
+            if(i>=0) { link.Text=entries[i].Url; open.PerformClick(); }
+        };
         source.Controls.Add(link,0,0); open.Margin = Padding.Empty; source.Controls.Add(open,1,0); page.Controls.Add(source,0,1);
         title.Text = L.T("Твой следующий маппул"); title.Font = new Font("Segoe UI Semibold",24);
         title.AutoSize = true; title.Margin = new Padding(0,20,0,16); title.MaximumSize = new Size(1000,0); page.Controls.Add(title,0,2);
@@ -81,8 +90,19 @@ class Window : DarkForm {
                 new Rectangle(e.Bounds.X+6,e.Bounds.Y,e.Bounds.Width-6,e.Bounds.Height),Ink,TextFormatFlags.VerticalCenter|TextFormatFlags.EndEllipsis);
             e.DrawFocusRectangle();
         };
-        stages.Margin = new Padding(0,5,16,0); toolbar.Controls.Add(stages);
-        toolbar.Controls.Add(download); toolbar.Controls.Add(add);
+        stages.Margin = new Padding(0,5,16,0); stages.Visible=false; toolbar.Controls.Add(stages); toolbar.Controls.Add(stagePicker);
+        stagePicker.Click+=delegate {
+            int i=Choice.Pick(this,L.T("Стадия турнира"),stages.Items.Cast<object>().Select(x=>x.ToString()).ToArray(),stages.SelectedIndex);
+            if(i>=0) stages.SelectedIndex=i;
+        };
+        toolbar.Controls.Add(download); toolbar.Controls.Add(add); toolbar.Controls.Add(slot);
+        slot.Click+=async delegate {
+            if(stages.SelectedItem is not Stage selected) return;
+            var slots=selected.Maps.Where(m=>!string.IsNullOrWhiteSpace(m.Slot)).Select(m=>m.Slot).Distinct().ToArray();
+            if(slots.Length==0) { DarkForm.ShowMessage(this,UiText.Pick("В этой стадии нет слотов.","This stage has no slots.")); return; }
+            int i=Choice.Pick(this,slot.Text,slots);
+            if(i>=0) await Transfer(true,slots[i]);
+        };
         count.AutoSize = true; count.ForeColor = Muted; count.Margin = new Padding(4,10,0,0); toolbar.Controls.Add(count); page.Controls.Add(toolbar,0,3);
         notice.AutoSize = true; notice.LinkColor = Warn; notice.ActiveLinkColor = Ink; notice.VisitedLinkColor = Warn;
         notice.Margin = new Padding(0,0,0,12); notice.Visible = false;
@@ -97,7 +117,7 @@ class Window : DarkForm {
         detailTitle.Margin = new Padding(0,0,0,3); detail.Controls.Add(detailTitle);
         detailMeta.AutoSize = true; detailMeta.ForeColor = Muted; detailMeta.Margin = new Padding(0,0,0,10); detail.Controls.Add(detailMeta);
         stats.AutoSize = true; stats.WrapContents = false; stats.AutoSizeMode = AutoSizeMode.GrowAndShrink; stats.Dock = DockStyle.Fill; stats.Margin = Padding.Empty; detail.Controls.Add(stats);
-        basis.Text = L.T("Параметры и старрейт из osu!Collector · без модов"); basis.ForeColor = Muted; basis.AutoSize = true; basis.Font = new Font("Segoe UI",9);
+        basis.Text = L.T("Параметры и старрейт из osu!Collector · без модов"); basis.ForeColor = Muted; basis.AutoSize = true; basis.Font = new Font("Segoe UI Variable Text",9);
         basis.Margin = new Padding(0,8,0,4); detail.Controls.Add(basis);
         detailLink.AutoSize = true; detailLink.LinkColor = Pink; detailLink.ActiveLinkColor = Ink; detailLink.VisitedLinkColor = Pink;
         detailLink.Margin = Padding.Empty; detail.Controls.Add(detailLink);
@@ -118,11 +138,11 @@ class Window : DarkForm {
             pool = null; stages.Items.Clear(); list.Rows.Clear(); count.Text = ""; title.Text = L.T("Загрузка пула…"); options.Visible = false;
             notice.Visible = false; ClearDetails(); bar.Value = 0;
             status.Text = L.T("Получаю карты с osu!Collector…");
-            pool = await Pool.Load(link.Text); title.Text = pool.Name;
+            pool = await Pool.Load(link.Text); title.Text = pool.Name; try { RecentPool.Record(pool); } catch(Exception ex) { CrashLog.Write(ex); }
             foreach(var stage in pool.Stages) stages.Items.Add(stage);
             stages.SelectedIndex = 0; UpdateNotice(); status.Text = L.T("Выбери стадию. Нажми на карту, чтобы посмотреть параметры.");
         }); };
-        stages.SelectedIndexChanged += delegate { ShowStage(); };
+        stages.SelectedIndexChanged += delegate { stagePicker.Text=stages.SelectedItem?.ToString()??L.T("Стадия турнира"); ShowStage(); };
         add.Click += delegate { options.Visible = true; stages.Focus(); status.Text = L.T("Выбери стадию выше и проверь название коллекции."); };
         create.CheckedChanged += delegate { collection.Enabled = create.Checked; };
         download.Click += async delegate { await Transfer(false); };
@@ -150,7 +170,8 @@ class Window : DarkForm {
     }
     internal void ApplyLanguage() {
         SuspendLayout();
-        languageButton.Text = L.English ? "EN / RU" : "RU / EN";
+        languageButton.Text = L.English ? "English" : "Русский";
+        recent.Text=UiText.Pick("Недавние","Recent pools"); slot.Text=UiText.Pick("Установить слот","Install slot"); stagePicker.Text=stages.SelectedItem?.ToString()??L.T("Стадия турнира");
         languageButton.AccessibleName = L.English ? "Switch to Russian" : "Переключить на английский";
         RefreshChromeLanguage();
         open.Text=L.T("Открыть пул"); download.Text=L.T("Скачать все карты"); add.Text=L.T("Добавить в osu!"); start.Text=L.T("Установить");
@@ -171,19 +192,19 @@ class Window : DarkForm {
         status.Text=pool==null ? L.T("Вставь ссылку на турнир или коллекцию и нажми «Открыть пул».") : L.T("Выбери стадию. Нажми на карту, чтобы посмотреть параметры.");
         ResumeLayout(true); ThemeManager.Apply(this,AppSettings.Current.Theme=="Light");
     }
-    void OpenTools() {
-        var menu=new ContextMenuStrip { BackColor=Surface, ForeColor=Ink };
-        var settings=menu.Items.Add(UiText.Pick("Настройки","Settings")); settings.Enabled=!busy;
-        settings.Click+=delegate { using(var dialog=new SettingsDialog()) dialog.ShowDialog(this); ThemeManager.Apply(this,AppSettings.Current.Theme=="Light"); };
-        var history=menu.Items.Add(UiText.Pick("История / удалить пул","History / remove pool")); history.Enabled=!busy;
-        history.Click+=delegate { using(var dialog=new HistoryDialog()) dialog.ShowDialog(this); };
-        menu.Items.Add(UiText.Pick("Открыть логи","Open logs")).Click+=delegate { try { SupportTools.OpenLogs(); } catch(Exception ex) { DarkForm.ShowMessage(this,ex.Message); } };
-        menu.Items.Add(UiText.Pick("Скопировать диагностику","Copy diagnostics")).Click+=delegate { try { Clipboard.SetText(SupportTools.Diagnostics()); status.Text=UiText.Pick("Диагностика скопирована (без личных путей).","Diagnostics copied (without personal paths)."); } catch(Exception ex) { DarkForm.ShowMessage(this,ex.Message); } };
-        menu.Items.Add(UiText.Pick("Проверить обновления","Check for updates")).Click+=async delegate {
-            try { string url=await SupportTools.CheckUpdate(); if(url==null) DarkForm.ShowMessage(this,UiText.Pick("Новых релизов канала 1.x нет.","No newer 1.x releases found.")); else if(MessageBox.Show(this,UiText.Pick("Доступно обновление. Открыть страницу релиза?","An update is available. Open its release page?"),"PoolDesk",MessageBoxButtons.YesNo)==DialogResult.Yes) OpenUrl(url); }
-            catch(Exception ex) { DarkForm.ShowMessage(this,ex.Message); }
-        };
-        menu.Closed+=delegate { menu.Dispose(); }; menu.Show(toolsButton,new Point(0,toolsButton.Height));
+    async void OpenTools() {
+        if(busy) return;
+        var items=new[]{UiText.Pick("Настройки","Settings"),UiText.Pick("История установок","Installation history"),UiText.Pick("Открыть логи","Open logs"),UiText.Pick("Скопировать диагностику","Copy diagnostics"),UiText.Pick("Проверить обновления","Check for updates"),UiText.Pick("Журнал сбоев","Crash logs")};
+        try {
+            switch(Choice.Pick(this,UiText.Pick("Меню","Menu"),items)) {
+                case 0: using(var dialog=new SettingsDialog()) dialog.ShowDialog(this); ThemeManager.Apply(this,AppSettings.Current.Theme=="Light"); break;
+                case 1: using(var dialog=new HistoryDialog()) dialog.ShowDialog(this); break;
+                case 2: SupportTools.OpenLogs(); break;
+                case 3: Clipboard.SetText(SupportTools.Diagnostics()); status.Text=UiText.Pick("Диагностика скопирована","Diagnostics copied"); break;
+                case 4: var url=await SupportTools.CheckUpdate(); if(url!=null) OpenUrl(url); else DarkForm.ShowMessage(this,UiText.Pick("Установлена актуальная версия.","You are up to date.")); break;
+                case 5: Directory.CreateDirectory(CrashLog.Folder); System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(CrashLog.Folder){UseShellExecute=true}); break;
+            }
+        } catch(Exception ex) { CrashLog.Write(ex); DarkForm.ShowMessage(this,ex.Message); }
     }
     void SetupGrid() {
         list.Dock = DockStyle.Fill; list.Margin = Padding.Empty; list.BackgroundColor = Surface; list.BorderStyle = BorderStyle.None;
@@ -195,7 +216,7 @@ class Window : DarkForm {
         list.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle { BackColor = Color.FromArgb(31,37,50), ForeColor = Muted,
             Font = new Font("Segoe UI Semibold",9), Padding = new Padding(12,0,0,0), SelectionBackColor = Surface };
         list.DefaultCellStyle = new DataGridViewCellStyle { BackColor = Surface, ForeColor = Ink, SelectionBackColor = Color.FromArgb(53,48,78),
-            SelectionForeColor = Ink, Padding = new Padding(12,0,6,0), Font = new Font("Segoe UI",10) };
+            SelectionForeColor = Ink, Padding = new Padding(12,0,6,0), Font = new Font("Segoe UI Variable Text",10) };
         list.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(28,33,45); list.RowTemplate.Height = 44;
         string[] names = {L.T("Слот"),L.T("Исполнитель / трек"),L.T("Сложность"),L.T("★ с модами")}; int[] weights = {10,43,27,20};
         for(int i=0;i<names.Length;i++) list.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = names[i], FillWeight = weights[i],
@@ -279,8 +300,8 @@ class Window : DarkForm {
         catch(Exception e) { status.Text = L.T("Не удалось открыть браузер: ") + e.Message; }
     }
     void Toggle() {
-        open.Enabled = link.Enabled = languageButton.Enabled = !busy;
-        stages.Enabled = download.Enabled = add.Enabled = options.Enabled = !busy && pool != null;
+        recent.Enabled = open.Enabled = link.Enabled = languageButton.Enabled = !busy;
+        slot.Enabled = stagePicker.Enabled = stages.Enabled = download.Enabled = add.Enabled = options.Enabled = !busy && pool != null;
     }
     async Task Run(Func<Task> action) {
         if(busy) return; busy = true; Toggle();
@@ -292,13 +313,14 @@ class Window : DarkForm {
             NoticeSound.Play(true); DarkForm.ShowMessage(this,e.Message);
         } finally { busy = false; Toggle(); }
     }
-    async Task Transfer(bool install) {
+    async Task Transfer(bool install,string selectedSlot=null) {
         await Run(async delegate {
             var stage=stages.SelectedItem as Stage; if(stage==null) return;
             var settings=AppSettings.Current;
-            string name=collection.Text.Trim(); bool merge=install&&create.Checked;
+            string name=collection.Text.Trim(); bool merge=install&&(create.Checked||selectedSlot!=null);
+            if(selectedSlot!=null) name=pool.Name+" · "+stage.Name+" · "+selectedSlot;
             if(merge&&name.Length==0) throw new IOException(L.T("Введи название коллекции."));
-            var maps=install?stage.Maps:pool.Stages.SelectMany(x=>x.Maps).ToList();
+            var maps=selectedSlot!=null?stage.Maps.Where(m=>m.Slot==selectedSlot).ToList():install?stage.Maps:pool.Stages.SelectMany(x=>x.Maps).ToList();
             string root="",destination="";
             if(install) {
                 Stable.Closed();
@@ -349,6 +371,9 @@ class Window : DarkForm {
         });
     }
     [STAThread] static void Main() {
+        Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+        Application.ThreadException+=(s,e)=>{ CrashLog.Write(e.Exception); DarkForm.ShowMessage(null,e.Exception.Message); };
+        AppDomain.CurrentDomain.UnhandledException+=(s,e)=>CrashLog.Write(e.ExceptionObject as Exception??new Exception(e.ExceptionObject?.ToString()));
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         AppSettings.Load();
         Application.EnableVisualStyles();

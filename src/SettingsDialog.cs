@@ -15,7 +15,7 @@ static class UiText {
 class SettingsDialog : DarkForm {
     internal SettingsDialog() {
         Text=UiText.Pick("Настройки · PoolDesk","Settings · PoolDesk"); Size=new Size(780,710); MinimumSize=new Size(740,670); StartPosition=FormStartPosition.CenterParent;
-        Font=new Font("Segoe UI",10); ForeColor=Window.Ink;
+        Font=new Font("Segoe UI Variable Text",10); ForeColor=Window.Ink;
         var panel=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=2,AutoScroll=true,Padding=new Padding(22)};
         panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,48)); panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,52)); Body.Controls.Add(panel);
         int row=0;
@@ -36,23 +36,31 @@ class SettingsDialog : DarkForm {
         var mirrors=new ListBox{Height=75,BackColor=Window.Surface,ForeColor=Window.Ink}; mirrors.Items.AddRange(settings.Mirrors.Cast<object>().ToArray()); add(UiText.Pick("Приоритет зеркал","Mirror priority"),mirrors);
         var up=new Button{Text=UiText.Pick("Поднять выбранное зеркало","Move selected mirror up"),Height=30}; add("",up);
         up.Click+=delegate { int index=mirrors.SelectedIndex; if(index>0) { object item=mirrors.Items[index]; mirrors.Items.RemoveAt(index); mirrors.Items.Insert(index-1,item); mirrors.SelectedIndex=index-1; } };
-        var theme=new ComboBox{DropDownStyle=ComboBoxStyle.DropDownList}; theme.Items.AddRange(new object[]{"Dark","Light"}); theme.SelectedItem=settings.Theme; add(UiText.Pick("Тема","Theme"),theme);
+        string chosenTheme=settings.Theme;
+        var theme=new Button {Height=34,Text=chosenTheme=="Dark"?UiText.Pick("Тёмная","Dark"):UiText.Pick("Светлая","Light")};
+        add(UiText.Pick("Тема","Theme"),theme);
+        theme.Click+=delegate {
+            var labels=new[]{UiText.Pick("Тёмная","Dark"),UiText.Pick("Светлая","Light")};
+            int i=Choice.Pick(this,UiText.Pick("Тема","Theme"),labels,chosenTheme=="Dark"?0:1);
+            if(i>=0) { chosenTheme=i==0?"Dark":"Light"; theme.Text=labels[i]; }
+        };
         var sound=new CheckBox{Text=UiText.Pick("Звуки завершения и ошибок","Completion and error sounds"),Checked=settings.Sounds,AutoSize=true}; add("",sound);
         var save=new Button{Text=UiText.Pick("Сохранить","Save"),Height=40,BackColor=Window.Pink,ForeColor=Window.Bg,FlatStyle=FlatStyle.Flat}; add("",save);
         save.Click+=delegate {
             try {
                 if(path.Text.Trim().Length>0&&!OsuLocator.Valid(path.Text.Trim())) throw new IOException(UiText.Pick("В выбранной папке нет osu!.exe.","The selected folder does not contain osu!.exe."));
                 settings.OsuFolder=path.Text.Trim(); settings.ParallelDownloads=(int)threads.Value; settings.Attempts=(int)attempts.Value;
-                settings.BackupCount=(int)backups.Value; settings.CacheLimitGB=(int)cache.Value; settings.Sounds=sound.Checked; settings.Theme=(string)theme.SelectedItem;
+                settings.BackupCount=(int)backups.Value; settings.CacheLimitGB=(int)cache.Value; settings.Sounds=sound.Checked; settings.Theme=chosenTheme;
                 settings.Mirrors=mirrors.Items.Cast<string>().ToList(); settings.Save(); DialogResult=DialogResult.OK; Close();
             } catch(Exception ex) { DarkForm.ShowMessage(this,ex.Message); }
         };
+        foreach(Control c in panel.Controls) if(c is Button b && b!=save) { b.FlatStyle=FlatStyle.Flat; b.BackColor=Window.Surface; b.ForeColor=Window.Ink; b.FlatAppearance.BorderColor=Window.Line; }
         ThemeManager.Apply(this,settings.Theme=="Light");
     }
 }
 class HistoryDialog : DarkForm {
     internal HistoryDialog() {
-        Text=UiText.Pick("История установок","Installation history"); Font=new Font("Segoe UI",10); Size=new Size(940,550); MinimumSize=new Size(760,420); StartPosition=FormStartPosition.CenterParent;
+        Text=UiText.Pick("История установок","Installation history"); Font=new Font("Segoe UI Variable Text",10); Size=new Size(940,550); MinimumSize=new Size(760,420); StartPosition=FormStartPosition.CenterParent;
         var panel=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=4,Padding=new Padding(20)};
         panel.RowStyles.Add(new RowStyle(SizeType.Percent,100)); for(int i=1;i<4;i++) panel.RowStyles.Add(new RowStyle(SizeType.AutoSize)); Body.Controls.Add(panel);
         var list=new ListBox{Dock=DockStyle.Fill,BackColor=Window.Surface,ForeColor=Window.Ink,HorizontalScrollbar=true}; panel.Controls.Add(list);
@@ -77,18 +85,18 @@ class HistoryDialog : DarkForm {
 static class SupportTools {
     internal static void OpenLogs() { Directory.CreateDirectory(AppPaths.Logs); Process.Start(new ProcessStartInfo(AppPaths.Logs){UseShellExecute=true}); }
     internal static string Diagnostics() {
-        return "PoolDesk 1.0.0\nOS: "+Environment.OSVersion+"\n.NET: "+Environment.Version+"\nArchitecture: "+System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture+
+        return "PoolDesk 1.1.0\nOS: "+Environment.OSVersion+"\n.NET: "+Environment.Version+"\nArchitecture: "+System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture+
             "\nLanguage: "+(L.English?"en":"ru")+"\nThreads: "+AppSettings.Current.ParallelDownloads+"\nAttempts: "+AppSettings.Current.Attempts+
             "\nMirrors: "+string.Join(", ",AppSettings.Current.Mirrors)+"\nCache MiB: "+(AppPaths.CacheSize()/1048576.0).ToString("0.0")+"\nosu folder valid: "+OsuLocator.Valid(AppSettings.Current.OsuFolder);
     }
     internal static async Task<string> CheckUpdate() {
         using(var http=new HttpClient{Timeout=TimeSpan.FromSeconds(20)}) {
-            http.DefaultRequestHeaders.UserAgent.ParseAdd("PoolDesk/1.0");
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("PoolDesk/1.1");
             using(var doc=JsonDocument.Parse(await http.GetStringAsync("https://api.github.com/repos/abzalzh/PoolDesk/releases?per_page=30"))) {
                 foreach(var release in doc.RootElement.EnumerateArray()) {
                     if(release.GetProperty("draft").GetBoolean()||release.GetProperty("prerelease").GetBoolean()) continue;
                     string tag=release.GetProperty("tag_name").GetString(); Version version;
-                    if(!tag.StartsWith("v1.",StringComparison.OrdinalIgnoreCase)||!Version.TryParse(tag.TrimStart('v','V'),out version)||version<=new Version(1,0,0)) continue;
+                    if(!tag.StartsWith("v1.",StringComparison.OrdinalIgnoreCase)||!Version.TryParse(tag.TrimStart('v','V'),out version)||version<=new Version(1,1,0)) continue;
                     return "https://github.com/abzalzh/PoolDesk/releases/tag/"+Uri.EscapeDataString(tag);
                 }
             }

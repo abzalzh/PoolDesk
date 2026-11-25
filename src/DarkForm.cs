@@ -14,7 +14,8 @@ class DarkForm : Form {
         FormBorderStyle = FormBorderStyle.None; Padding = new Padding(4); BackColor = Color.FromArgb(16,19,27);
         DoubleBuffered = true;
         var bar = new Panel { Height = 36, Dock = DockStyle.Top, BackColor = Color.FromArgb(20,24,34) };
-        caption.ForeColor = Color.FromArgb(159,172,196); caption.Font = new Font("Segoe UI",9);
+        caption.ForeColor = Color.FromArgb(159,172,196); caption.Font = new Font("Segoe UI Variable Text",9);
+        bar.Resize+=delegate { foreach(Control c in CaptionActions.Controls) c.Height=bar.ClientSize.Height; }; CaptionActions.ControlAdded+=(s,e)=> { e.Control.Height=bar.ClientSize.Height; e.Control.Margin=Padding.Empty; };
         bar.Controls.Add(caption); bar.Controls.Add(CaptionActions);
         CaptionActions.Controls.Add(minimize); CaptionActions.Controls.Add(maximize); CaptionActions.Controls.Add(close);
         Controls.Add(Body); Controls.Add(bar);
@@ -71,7 +72,7 @@ class DarkForm : Form {
     }
     internal static void ShowMessage(IWin32Window owner,string message) {
         using(var dialog=new DarkForm { Text="PoolDesk", Size=new Size(680,360), MinimumSize=new Size(540,280),
-            StartPosition=FormStartPosition.CenterParent, Font=new Font("Segoe UI",10) }) {
+            StartPosition=FormStartPosition.CenterParent, Font=new Font("Segoe UI Variable Text",10) }) {
             var text=new RichTextBox { Dock=DockStyle.Fill, ReadOnly=true, DetectUrls=true, BorderStyle=BorderStyle.None,
                 BackColor=Color.FromArgb(25,30,41), ForeColor=Color.FromArgb(237,241,249), Font=dialog.Font, Text=L.Translate(message) };
             var ok=new Button { Text=L.T("Хорошо"), Dock=DockStyle.Bottom, Height=42, BackColor=Color.FromArgb(174,158,255), ForeColor=Color.FromArgb(16,19,27), FlatStyle=FlatStyle.Flat };
