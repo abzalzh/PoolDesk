@@ -1,5 +1,5 @@
-# PoolDesk 1.1.1.0
+PoolDesk 1.1.2
 
-Новая иконка для ярлыков. Видео карт отключено по умолчанию и включается в настройках.
+RU: Выбранный слот теперь устанавливается из всех стадий пула в одну коллекцию. Её название можно изменить перед установкой.
 
-Updated shortcut icon. Beatmap videos are optional and disabled by default.
+EN: A selected slot now installs maps from all pool stages into one collection. Edit its name before installing.

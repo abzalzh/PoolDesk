@@ -267,3 +267,10 @@ The application license does not cover music, beatmaps, images, trademarks, or e
 
 Bundled `rosu_pp_ffi.dll` SHA-256:  
 `cd7e7bba27673f599554575ce06480e9f1c3822c61849f126fde449e9866cab4`
+
+
+### 1.1.2: установка слота / slot installation
+
+Выбор слота (например, NM2) собирает его карты из **всех стадий** открытого пула. Перед установкой можно изменить название общей коллекции. Пустое название не принимается; отмена закрывает окно без установки.
+
+Selecting a slot (for example NM2) gathers its maps from **every stage** of the loaded pool. Edit the shared collection name before installing. Empty names are disabled; Cancel exits without installing.

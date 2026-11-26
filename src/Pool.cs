@@ -45,6 +45,15 @@ class Pool {
     public string Source="";
     public bool Tournament;
     public List<Stage> Stages = new List<Stage>();
+    internal string[] SlotNames() => Stages.SelectMany(s => s.Maps)
+        .Select(m => m.Slot?.Trim()).Where(s => !string.IsNullOrWhiteSpace(s))
+        .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+
+    internal Stage SelectSlot(string slot) => new Stage {
+        Name = UiText.Pick("Все стадии", "All stages") + " · " + slot,
+        Maps = Stages.SelectMany(s => s.Maps)
+            .Where(m => string.Equals(m.Slot?.Trim(), slot?.Trim(), StringComparison.OrdinalIgnoreCase)).ToList()
+    };
     static HttpClient http = new HttpClient { Timeout = TimeSpan.FromMinutes(4) };
     static Pool() { http.DefaultRequestHeaders.UserAgent.ParseAdd("PoolDesk/1.1"); }
     static async Task<Dictionary<string,object>> Read(string url) {

@@ -1,2 +1,7 @@
-# PoolDesk 1.1 — проверка
-25 ноября 2026 года. В Windows прошли 25 автоматических проверок. Среди них история открытых пулов, запись исключения в CrashLogs и три цикла открытия настроек с передачей фокуса другому окну и возвратом. Проверка смены фокуса имитирует поведение окон и не посылает физическую комбинацию Alt+Tab. Установленная игра для тестов не использовалась.
+# PoolDesk 1.1.2 verification
+
+2026-11-26: all 28 offline tests passed on Windows.
+
+Includes all-stage slot selection, exclusion of unrelated slots, actual collection writes with an edited name, blank-name validation, dialog cancellation, collection.db safety, download error recovery, and UI rendering. Tests use isolated temporary game folders; no live osu! installation was modified.
+
+Build limitation: NuGet vulnerability audit returned NU1900 because api.nuget.org was unreachable; vulnerability audit was not completed.

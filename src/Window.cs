@@ -48,7 +48,7 @@ class Window : DarkForm {
         return new Label { Text = text, ForeColor = color, AutoSize = true, Font = new Font("Segoe UI Variable Text",size), Margin = Padding.Empty };
     }
     public Window() {
-        Text = "PoolDesk 1.1.1.0 · osu!stable"; AutoScaleDimensions = new SizeF(96,96); AutoScaleMode = AutoScaleMode.Dpi;
+        Text = "PoolDesk 1.1.2 · osu!stable"; AutoScaleDimensions = new SizeF(96,96); AutoScaleMode = AutoScaleMode.Dpi;
         MinimumSize = new Size(780,640); Size = new Size(1120,880);
         StartPosition = FormStartPosition.CenterScreen; Font = new Font("Segoe UI Variable Text",10); BackColor = Bg; ForeColor = Ink;
         DoubleBuffered = true;
@@ -97,11 +97,13 @@ class Window : DarkForm {
         };
         toolbar.Controls.Add(download); toolbar.Controls.Add(add); toolbar.Controls.Add(slot);
         slot.Click+=async delegate {
-            if(stages.SelectedItem is not Stage selected) return;
-            var slots=selected.Maps.Where(m=>!string.IsNullOrWhiteSpace(m.Slot)).Select(m=>m.Slot).Distinct().ToArray();
-            if(slots.Length==0) { DarkForm.ShowMessage(this,UiText.Pick("В этой стадии нет слотов.","This stage has no slots.")); return; }
-            int i=Choice.Pick(this,slot.Text,slots);
-            if(i>=0) await Transfer(true,slots[i]);
+            if(pool == null) return;
+            var slots = pool.SlotNames();
+            if(slots.Length == 0) { DarkForm.ShowMessage(this,UiText.Pick("В этом пуле нет слотов.","This pool has no slots.")); return; }
+            int i = Choice.Pick(this,UiText.Pick("Слот из всех стадий", "Slot from all stages"),slots);
+            if(i < 0) return;
+            string name = Choice.CollectionName(this,pool.Name + " · " + slots[i],pool.SelectSlot(slots[i]).Maps.Count);
+            if(name != null) await Transfer(true,slots[i],name);
         };
         count.AutoSize = true; count.ForeColor = Muted; count.Margin = new Padding(4,10,0,0); toolbar.Controls.Add(count); page.Controls.Add(toolbar,0,3);
         notice.AutoSize = true; notice.LinkColor = Warn; notice.ActiveLinkColor = Ink; notice.VisitedLinkColor = Warn;
@@ -313,14 +315,14 @@ class Window : DarkForm {
             NoticeSound.Play(true); DarkForm.ShowMessage(this,e.Message);
         } finally { busy = false; Toggle(); }
     }
-    async Task Transfer(bool install,string selectedSlot=null) {
+    async Task Transfer(bool install,string selectedSlot=null,string selectedCollectionName=null) {
         await Run(async delegate {
-            var stage=stages.SelectedItem as Stage; if(stage==null) return;
+            var stage=selectedSlot == null ? stages.SelectedItem as Stage : pool?.SelectSlot(selectedSlot); if(stage==null) return;
             var settings=AppSettings.Current;
             string name=collection.Text.Trim(); bool merge=install&&(create.Checked||selectedSlot!=null);
-            if(selectedSlot!=null) name=pool.Name+" · "+stage.Name+" · "+selectedSlot;
+            if(selectedSlot!=null) name=(selectedCollectionName ?? "").Trim();
             if(merge&&name.Length==0) throw new IOException(L.T("Введи название коллекции."));
-            var maps=selectedSlot!=null?stage.Maps.Where(m=>m.Slot==selectedSlot).ToList():install?stage.Maps:pool.Stages.SelectMany(x=>x.Maps).ToList();
+            var maps=install?stage.Maps:pool.Stages.SelectMany(x=>x.Maps).ToList();
             string root="",destination="";
             if(install) {
                 Stable.Closed();

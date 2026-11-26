@@ -1,4 +1,4 @@
-#define AppVersion "1.1.1.0"
+#define AppVersion "1.1.2"
 [Setup]
 AppId={{424E574B-29F2-467F-B3F5-7D07C6193CC3}
 AppName=PoolDesk
@@ -12,7 +12,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir=..\artifacts
-OutputBaseFilename=PoolDesk-1.1.1.0-Setup
+OutputBaseFilename=PoolDesk-1.1.2-Setup
 SetupIconFile=..\assets\PoolDesk.ico
 UninstallDisplayIcon={app}\PoolDesk.exe
 Compression=lzma2
@@ -40,8 +40,8 @@ russian.RuntimeError=Не удалось установить Microsoft Runtime.
 Source: "..\artifacts\portable\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\PoolDesk"; Filename: "{app}\PoolDesk.exe"; IconFilename: "{app}\PoolDesk-1.1.1.0.ico"
-Name: "{autodesktop}\PoolDesk"; Filename: "{app}\PoolDesk.exe"; IconFilename: "{app}\PoolDesk-1.1.1.0.ico"; Tasks: desktopicon
+Name: "{group}\PoolDesk"; Filename: "{app}\PoolDesk.exe"; IconFilename: "{app}\PoolDesk-1.1.2.ico"
+Name: "{autodesktop}\PoolDesk"; Filename: "{app}\PoolDesk.exe"; IconFilename: "{app}\PoolDesk-1.1.2.ico"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\PoolDesk.exe"; Description: "{cm:LaunchProgram,PoolDesk}"; Flags: nowait postinstall skipifsilent

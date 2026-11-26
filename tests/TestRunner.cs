@@ -93,6 +93,37 @@ class TestRunner {
     DownloadQueue.StripVideo(path); DownloadQueue.Validate(path,new[]{Chart(7)});
     using var result=ZipFile.OpenRead(path); Check(result.GetEntry("BG/clip.MP4")==null&&result.GetEntry("music.mp3")!=null,"video filter");
    });
+   Test("slot includes all stages and excludes other slots",()=> {
+    var first=Chart(31); first.Slot="NM2";
+    var second=Chart(32); second.Slot="nm2";
+    var other=Chart(33); other.Slot="HD1";
+    var pool=new Pool {Stages=new List<Stage> {new Stage {Maps=new List<Chart>{first}},new Stage {Maps=new List<Chart>{second,other}}}};
+    Check(pool.SlotNames().Length==2,"distinct slots across stages");
+    Check(pool.SelectSlot("NM2").Maps.Select(m=>m.Id).SequenceEqual(new[]{31,32}),"missing stage or wrong slot");
+    Check(pool.SelectSlot("HD1").Maps.Single().Id==33,"slot exclusive to another stage");
+    Check(pool.SelectSlot("NM9").Maps.Count==0,"unknown slot");
+    string game=Dir("all-stage-game"); File.WriteAllBytes(Path.Combine(game,"osu!.exe"),Array.Empty<byte>());
+    var h=new Handler {Send=r=>Task.FromResult(Reply(Zip(int.Parse(r.RequestUri.Segments.Last()))))};
+    var stage=pool.SelectSlot("NM2");
+    Run(new InstallEngine(new AppSettings {Attempts=1},Queue(h),()=>{}).Run(pool,stage,stage.Maps,game,Dir("all-stage-cache"),"My edited collection",new LocalInventory(),new DownloadControl(),CancellationToken.None,null));
+    var entry=CollectionStore.Load(game).Entries.Single();
+    Check(entry.Name=="My edited collection"&&entry.Hashes.Count==2,"edited name and all-stage collection");
+   });
+   Test("collection name dialog edits validates and cancels",()=> {
+    Control[] Desc(Control c) => c.Controls.Cast<Control>().SelectMany(x=>new[]{x}.Concat(Desc(x))).ToArray();
+    using var timer=new System.Windows.Forms.Timer {Interval=150};
+    timer.Tick+=(s,e)=> {
+     timer.Stop(); var form=Application.OpenForms.Cast<Form>().Last(); var controls=Desc(form);
+     var input=controls.OfType<TextBox>().Single(); var ok=controls.OfType<Button>().Single(b=>b.DialogResult==DialogResult.OK);
+     input.Text="   "; Check(!ok.Enabled,"blank accepted"); input.Text="  Edited NM2  "; Check(ok.Enabled,"valid disabled");
+     using(var bitmap=new Bitmap(form.Width,form.Height)) { form.DrawToBitmap(bitmap,new Rectangle(Point.Empty,form.Size)); bitmap.Save(Path.Combine(root,"slot-install.png")); }
+     ok.PerformClick();
+    };
+    timer.Start(); Check(Choice.CollectionName(null,"Pool · NM2",2)=="Edited NM2","edited name lost");
+    using var cancelTimer=new System.Windows.Forms.Timer {Interval=150};
+    cancelTimer.Tick+=(s,e)=> {cancelTimer.Stop();Application.OpenForms.Cast<Form>().Last().DialogResult=DialogResult.Cancel;};
+    cancelTimer.Start(); Check(Choice.CollectionName(null,"Pool · NM2",2)==null,"cancel accepted");
+   });
    Console.WriteLine("PASS TOTAL: "+passed); return 0;
   } catch(Exception ex) { Console.Error.WriteLine(ex); return 1; }
  }

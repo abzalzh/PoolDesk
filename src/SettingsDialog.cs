@@ -86,7 +86,7 @@ class HistoryDialog : DarkForm {
 static class SupportTools {
     internal static void OpenLogs() { Directory.CreateDirectory(AppPaths.Logs); Process.Start(new ProcessStartInfo(AppPaths.Logs){UseShellExecute=true}); }
     internal static string Diagnostics() {
-        return "PoolDesk 1.1.1.0\nOS: "+Environment.OSVersion+"\n.NET: "+Environment.Version+"\nArchitecture: "+System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture+
+        return "PoolDesk 1.1.2\nOS: "+Environment.OSVersion+"\n.NET: "+Environment.Version+"\nArchitecture: "+System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture+
             "\nLanguage: "+(L.English?"en":"ru")+"\nThreads: "+AppSettings.Current.ParallelDownloads+"\nAttempts: "+AppSettings.Current.Attempts+
             "\nMirrors: "+string.Join(", ",AppSettings.Current.Mirrors)+"\nCache MiB: "+(AppPaths.CacheSize()/1048576.0).ToString("0.0")+"\nosu folder valid: "+OsuLocator.Valid(AppSettings.Current.OsuFolder);
     }
@@ -97,7 +97,7 @@ static class SupportTools {
                 foreach(var release in doc.RootElement.EnumerateArray()) {
                     if(release.GetProperty("draft").GetBoolean()||release.GetProperty("prerelease").GetBoolean()) continue;
                     string tag=release.GetProperty("tag_name").GetString(); Version version;
-                    if(!tag.StartsWith("v1.",StringComparison.OrdinalIgnoreCase)||!Version.TryParse(tag.TrimStart('v','V'),out version)||version<=new Version(1,1,1,0)) continue;
+                    if(!tag.StartsWith("v1.",StringComparison.OrdinalIgnoreCase)||!Version.TryParse(tag.TrimStart('v','V'),out version)||version<=new Version(1,1,2,0)) continue;
                     return "https://github.com/abzalzh/PoolDesk/releases/tag/"+Uri.EscapeDataString(tag);
                 }
             }

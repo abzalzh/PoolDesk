@@ -33,6 +33,32 @@ static class CrashLog {
 }
 
 static class Choice {
+    internal static string CollectionName(Form owner,string initialName,int mapCount) {
+        using var form = new DarkForm { Text=UiText.Pick("Установить слот", "Install slot"),
+            StartPosition=FormStartPosition.CenterParent,Size=new Size(620,255),
+            Font=new Font("Segoe UI",10),ForeColor=Window.Ink };
+        var layout = new TableLayoutPanel { Dock=DockStyle.Fill,Padding=new Padding(18),ColumnCount=1,RowCount=3 };
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute,56));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+        layout.RowStyles.Add(new RowStyle(SizeType.Absolute,42));
+        var label = new Label { Dock=DockStyle.Fill,Text=UiText.Pick("Карты из всех стадий: ","Maps from all stages: ")+mapCount+"\n"+
+            UiText.Pick("Название коллекции:","Collection name:") };
+        var input = new TextBox { Dock=DockStyle.Top,Text=initialName,BackColor=Window.Surface,ForeColor=Window.Ink };
+        var buttons = new FlowLayoutPanel { Dock=DockStyle.Fill,FlowDirection=FlowDirection.RightToLeft };
+        var ok = new ReadableButton { Text=UiText.Pick("Установить","Install"),Width=145,Height=34,FlatStyle=FlatStyle.Flat,
+            BackColor=Window.Pink,ForeColor=Window.Bg,DialogResult=DialogResult.OK };
+        var cancel = new ReadableButton { Text=UiText.Pick("Отмена","Cancel"),Width=110,Height=34,FlatStyle=FlatStyle.Flat,
+            BackColor=Window.Surface,ForeColor=Window.Ink,DialogResult=DialogResult.Cancel };
+        input.TextChanged += (s,e) => ok.Enabled=!string.IsNullOrWhiteSpace(input.Text);
+        ok.Enabled=!string.IsNullOrWhiteSpace(input.Text);
+        buttons.Controls.Add(ok); buttons.Controls.Add(cancel);
+        layout.Controls.Add(label,0,0); layout.Controls.Add(input,0,1); layout.Controls.Add(buttons,0,2);
+        form.Body.Controls.Add(layout); form.AcceptButton=ok; form.CancelButton=cancel;
+        ThemeManager.Apply(form,AppSettings.Current.Theme=="Light");
+        form.Shown += (s,e) => { input.Focus(); input.SelectAll(); };
+        return form.ShowDialog(owner)==DialogResult.OK ? input.Text.Trim() : null;
+    }
+
     internal static int Pick(Form owner,string title,string[] items,int current=0) {
         using var form=new DarkForm {Text=title,StartPosition=FormStartPosition.CenterParent,Size=new Size(610,400),Font=new Font("Segoe UI Variable Text",10),ForeColor=Window.Ink};
         var list=new ListBox {Dock=DockStyle.Fill,BorderStyle=BorderStyle.None,BackColor=Window.Surface,ForeColor=Window.Ink,IntegralHeight=false,HorizontalScrollbar=true,ItemHeight=32,DrawMode=DrawMode.OwnerDrawFixed};
