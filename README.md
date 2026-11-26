@@ -56,7 +56,7 @@ PoolDesk — небольшая программа для Windows, котора�
 2. Выбери стадию. Расчёт звёзд начнётся в фоне.
 3. Нажми **Добавить в osu!**.
 4. При необходимости оставь галочку **Создать коллекцию в osu!** и задай название.
-5. Закрой osu!stable, нажми **Установить** и выбери папку с `osu!.exe`.
+5. Закрой osu!stable, нажми **Установить** и в настройках выбери папку с `osu!.exe` (по дефолту выбрано на \AppData\Local\osu!)
 6. После завершения открой выбор песни в игре. Если карты не появились, нажми **F5**.
 
 **Скачать все карты** скачивает наборы всех стадий в выбранную папку. **Добавить в osu!** устанавливает только выбранную стадию. Скачиваются целые наборы `.osz`, но в коллекцию записываются хеши только нужных сложностей.
@@ -180,7 +180,7 @@ If the calculator reports a DLL loading error, check that `rosu_pp_ffi.dll` is b
 2. Select a stage. Star ratings will be calculated in the background.
 3. Click **Add to osu!**.
 4. Optionally keep **Create a collection in osu!** checked and enter a name.
-5. Close osu!stable, click **Install**, and select the folder containing `osu!.exe`.
+5. Close osu!stable, click **Install**, and on settings tab, select the folder containing `osu!.exe` (by default, \AppData\Local\osu! is selected)
 6. Open song selection in the game after installation. Press **F5** if the maps have not appeared.
 
 **Download all maps** downloads beatmapsets from every stage to a selected folder. **Add to osu!** installs only the selected stage. Whole `.osz` beatmapsets are downloaded, but only the required difficulties' hashes are added to the collection.
